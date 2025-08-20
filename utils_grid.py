@@ -3,21 +3,48 @@
 #-------------------------------------------------#
 
 import numpy as np
+from typing import Tuple, Literal
 
-def grid(row: int = 128, col: int = 128, game_mode: str = 'classic'):
-    # jeu classique ou cellule vivante = 1 et morte = 0
-    if game_mode == 'classic':
-        game_grid = np.zeros((row, col), dtype=np.uint8) 
-    # jeu avancé ou cellule peu prendre des états intermédiaire codée en RGB sur 256 niveaux
-    elif game_mode == 'advanced':
-        game_grid = np.zeros((row, col, 3), dtype=np.uint8)
-    return game_grid
+GameModes = Literal['classic', 'advanced_rgb', 'advanced_float']
+
+def init_grid(rows: int = 128, cols: int = 128, game_mode: GameModes = 'classic') -> np.ndarray:
+    """
+    Initialise une grille selon le mode de jeu.
+
+    - classic        : grille 2D uint8, valeurs {0,1}
+    - advanced_rgb   : grille 3D uint8, shape (rows, cols, 3), canaux 0..255
+    - advanced_float : grille 2D float32, valeurs continues [0,1] (initialisées à 0)
+
+    Returns
+    -------
+    np.ndarray
+    """
+    if rows <= 0 or cols <= 0:
+        raise ValueError("rows et cols doivent être > 0")
+    elif game_mode == "classic":
+        return np.zeros((rows, cols), dtype=np.uint8)
+
+    elif game_mode == "advanced_rgb":
+        return np.zeros((rows, cols, 3), dtype=np.uint8)
+
+    elif game_mode == "advanced_float":
+        return np.zeros((rows, cols), dtype=np.float32)
+    else:
+        raise ValueError(f"Mode inconnu: {game_mode!r}. "
+                        "Choisir parmi {'classic', 'advanced_rgb', 'advanced_float'}.")
 
 
 
 if __name__ == "__main__":
-    grid_classic = grid(4, 4)
-    print(f"grille classique: \n {grid_classic}")
-    print('------------------------')
-    grid_advanced = grid(4, 4, game_mode='advanced')
-    print(f"grille avancée: \n {grid_advanced}")
+    grid_classic = init_grid(4, 4, "classic")
+    print("Grille 'classic':\n", grid_classic)
+    print("------------------------")
+
+    grid_rgb = init_grid(4, 4, "advanced_rgb")
+    print("Grille 'advanced_rgb':\n", grid_rgb)
+    print("------------------------")
+
+    grid_float = init_grid(4, 4, "advanced_float")
+    print("Grille 'advanced_float':\n", grid_float)
+    
+    wrong_grid = init_grid(4, 4, "avancé") 

@@ -58,7 +58,7 @@ uv sync
 brew install ffmpeg
 
 # Lancer l'app
-uv run streamlit run app.py
+uv run streamlit run Life.py
 ```
 
 ---

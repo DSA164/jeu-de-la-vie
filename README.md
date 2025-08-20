@@ -21,7 +21,7 @@ Le projet propose deux modes principaux :
 - **Mode binaire (classique)** : cellules vivantes (`1`) ou mortes (`0`), suivant les règles de Conway.  
 - **Mode avancé (continu)** : cellules prenant une valeur entre `0` et `1`, avec des transitions définies par des fonctions continues (sigmoïdes, bruit, pondération des voisins, etc.).  
 
-👉 Voir la documentation complète dans [game_mode.md](./game_mode.md).
+👉 Voir la documentation complète dans [game_mode.md](./Docs/game_mode.md).
 
 
 
@@ -37,7 +37,7 @@ Ajoute un document expliquant :
 
 Contenu : exemples de fonctions `step(...)` (np.roll, SciPy, ndimage, FFT, PyTorch/CuPy), bonnes pratiques perf (dtype, réutilisation de buffers), mini-benchmark de cohérence/temps, et tableau comparatif des approches.
 
-👉 Voir la documentation complète dans [optimisation_matricielle](./optimisation_matricielle.md).
+👉 Voir la documentation complète dans [optimisation_matricielle](./Docs/optimisation_matricielle.md).
 
 
 ### Optimisation pour l'affichage en faible latense sur une page web
@@ -48,7 +48,7 @@ Ajoute un document expliquant:
 
 Contenu: architecture, recommandations perf (dtype, buffer reuse, fps), exemples minimaux
 
-👉 Voir la documentation complète dans [optimisation_web](./optimisation_web.md).
+👉 Voir la documentation complète dans [optimisation_web](./Docs/optimisation_web.md).
 
 ---
 

@@ -13,9 +13,21 @@
 - Explorer l’utilisation de techniques issues de l’**IA / ML** (ex. détection de motifs, apprentissage de règles, optimisation de performance).  
 - Servir de **support pédagogique** pour étudiants, chercheurs et passionnés.  
 
-## Documentation
 
-### [Optimisation matricielle pour le Jeu de la Vie](./optimisation_matricielle.md)
+## 🎮 Modes de jeu
+
+Le projet propose deux modes principaux :  
+
+- **Mode binaire (classique)** : cellules vivantes (`1`) ou mortes (`0`), suivant les règles de Conway.  
+- **Mode avancé (continu)** : cellules prenant une valeur entre `0` et `1`, avec des transitions définies par des fonctions continues (sigmoïdes, bruit, pondération des voisins, etc.).  
+
+👉 Voir la documentation complète dans [game_mode.md](./game_mode.md).
+
+
+
+## 📚 Documentation
+
+### Optimisation matricielle pour le Jeu de la Vie
 Ajoute un document expliquant :
 - Représentation en **matrice binaire** (`uint8`/`bool`) et gestion des **bords périodiques** (*wrap*).
 - Calcul des voisins **vectorisé** avec `numpy.roll` (sans boucle Python).
@@ -25,14 +37,18 @@ Ajoute un document expliquant :
 
 Contenu : exemples de fonctions `step(...)` (np.roll, SciPy, ndimage, FFT, PyTorch/CuPy), bonnes pratiques perf (dtype, réutilisation de buffers), mini-benchmark de cohérence/temps, et tableau comparatif des approches.
 
+👉 Voir la documentation complète dans [optimisation_matricielle](./optimisation_matricielle.md).
 
-### [Optimisation pour l'affichage en faible latense sur une page web](./optimisation_web.md)
+
+### Optimisation pour l'affichage en faible latense sur une page web
 Ajoute un document expliquant:
 - NumPy pour la grille et le calcul (vectorisation, compat M/L)
 - Streamlit pour la présentation et les contrôles
 - WebRTC (streamlit-webrtc) pour pousser des frames sans streamlit.rerun()
 
 Contenu: architecture, recommandations perf (dtype, buffer reuse, fps), exemples minimaux
+
+👉 Voir la documentation complète dans [optimisation_web](./optimisation_web.md).
 
 ---
 

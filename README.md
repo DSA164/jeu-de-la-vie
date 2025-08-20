@@ -50,11 +50,15 @@ Cloner le dépôt et installer les dépendances :
 git clone https://github.com/ton-compte/jeu-de-la-vie.git
 cd jeu-de-la-vie
 
-# Installer la version de Python définie dans pyproject.toml (ex. 3.12)
-uv python install 3.12
-
-# Créer l'environnement et installer les dépendances
+# Initialiser l'environnement local en Python 3.13 et installer les deps
+uv venv -p 3.13
 uv sync
+
+# (macOS) si vous utilisez WebRTC : installez ffmpeg
+brew install ffmpeg
+
+# Lancer l'app
+uv run streamlit run app.py
 ```
 
 ---

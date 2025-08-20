@@ -4,16 +4,18 @@
 Le **Jeu de la vie de Conway** peut être exprimé en **calcul matriciel** pour accélérer drastiquement son exécution.  
 Voici les différentes approches possibles, du simple **NumPy** au **GPU**.
 
+
 ---
+
 
 ## 1. 🎲 Représentation matricielle
 On représente la grille comme une **matrice binaire** `A` (numpy array, bool/int8) :  
 - `1` → cellule vivante  
 - `0` → cellule morte
 
-> ℹ️ Les exemples ci-dessous utilisent des **bords périodiques** (“tore”).  
 
 ---
+
 
 ## 2. ➕ Calcul vectorisé des voisins (`numpy.roll`)
 Au lieu de boucler cellule par cellule, on additionne les **versions décalées** de la matrice :
@@ -38,7 +40,10 @@ def step(A: np.ndarray) -> np.ndarray:
     return ((N == 3) | ((A == 1) & (N == 2))).astype(np.uint8)
 ```
 
+
 ---
+
+
 
 ## 3. 🎛️ Optimisation par convolution
 
@@ -57,15 +62,16 @@ def step_conv(A: np.ndarray) -> np.ndarray:
     N = convolve2d(A, KERNEL, mode="same", boundary="wrap")
     return ((N == 3) | ((A == 1) & (N == 2))).astype(np.uint8)
 ```
-Atouts :
-`scipy.signal.convolve2d` est implémenté en C → très rapide.
-Peut utiliser la FFT (selon la taille) pour accélérer les grandes grilles.
+
+>Atouts :
+>`scipy.signal.convolve2d` est implémenté en C → très rapide.
+>Peut utiliser la FFT (selon la taille) pour accélérer les grandes grilles.
+
+
 
 ### 3.2. Convolution via SciPy/ndimage (alternative)
 `ndimage.convolve` est optimisée en C et gère aussi les bords périodiques.
 
-```python
-```
 
 ```python
 import numpy as np
@@ -79,6 +85,8 @@ def step_conv_ndimage(A: np.ndarray) -> np.ndarray:
     N = ndi.convolve(A, KERNEL, mode="wrap")
     return ((N == 3) | ((A == 1) & (N == 2))).astype(np.uint8)
 ```
+
+
 
 ### 3.3. Convolution FFT (utile sur très grandes grilles)
 La convolution par FFT devient avantageuse pour des tailles importantes. Avec `scipy.signal.fftconvolve` :
@@ -100,8 +108,9 @@ def step_conv_fft(A: np.ndarray) -> np.ndarray:
     return ((N == 3) | ((A == 1) & (N == 2))).astype(np.uint8)
 ```
 
+>💡 Pour un véritable wrap avec FFT, on peut replier les bords (tiling) avant FFT, ou utiliser des librairies spécialisées. Sur de petites grilles, préférez `convolve2d`.
 
-💡 Pour un véritable wrap avec FFT, on peut replier les bords (tiling) avant FFT, ou utiliser des librairies spécialisées. Sur de petites grilles, préférez `convolve2d`.
+
 
 ### 3.4. Convolution PyTorch (CPU/GPU)
 Utilise les tensors et l’API `conv2d`. Pour un bord périodique, on applique un padding circulaire puis une conv sans padding.
@@ -135,8 +144,10 @@ def step_conv_torch(A_np: np.ndarray) -> np.ndarray:
     return alive_next.squeeze(0).squeeze(0).to(torch.uint8).cpu().numpy()
 ```
 
-✅ Remplacez device = torch.device("cuda" ...) pour forcer CPU/GPU.
-Avec CUDA, cette version peut être très rapide sur de grandes grilles.
+>✅ Remplacez device = torch.device("cuda" ...) pour forcer CPU/GPU.
+>Avec CUDA, cette version peut être très rapide sur de grandes grilles.
+
+
 
 ### 3.5. Convolution CuPy (GPU NVIDIA, API NumPy-like)
 CuPy offre une API compatible NumPy. On peut également utiliser cupyx.scipy.signal.convolve2d.
@@ -155,6 +166,56 @@ def step_conv_cupy(A_np: np.ndarray) -> np.ndarray:
     N = cp_convolve2d(A, KERNEL_CP, mode="same", boundary="wrap")
     next_state = ((N == 3) | ((A == 1) & (N == 2))).astype(cp.uint8)
     return cp.asnumpy(next_state)
-
-
 ```
+
+
+---
+
+
+
+## 4. Note sur les bords (padding/boundary)
+ - `wrap` = tore (périodique) → recommandé pour animations continues.
+ - `reflect` / `symmetric` = effet miroir (peut influencer la dynamique aux bords).
+ - `fill` / `constant` = bords morts (peut “manger” les motifs au bord).
+   
+> Choisissez le même mode pour toutes vos variantes afin d’obtenir des résultats identiques entre implémentations.
+
+
+---
+
+
+
+## 5. Mini-benchmark (sanity check + timing)
+Exemple rapide pour vérifier la cohérence entre deux implémentations et comparer les temps (CPU).
+⚠️ Ajustez la taille H, W et le nombre d’itérations selon votre machine.
+
+
+```python
+import numpy as np
+import time
+
+# Exemple : comparer step_conv (SciPy) vs step (np.roll)
+H, W = 1024, 1024
+A0 = (np.random.rand(H, W) > 0.8).astype(np.uint8)
+
+# --- Sanity check (1 step) ---
+A_roll = step(A0)           # depuis la section 2
+A_scipy = step_conv(A0)     # 3.1
+
+print("Identiques ?", np.array_equal(A_roll, A_scipy))
+
+# --- Timing ---
+def timeit(fn, A, n=50):
+    A_ = A.copy()
+    t0 = time.perf_counter()
+    for _ in range(n):
+        A_ = fn(A_)
+    return time.perf_counter() - t0
+
+t_roll = timeit(step, A0, n=50)
+t_scipy = timeit(step_conv, A0, n=50)
+
+print(f"np.roll: {t_roll:.3f}s  |  scipy.convolve2d: {t_scipy:.3f}s")
+```
+
+>💡 Sur grandes grilles, `scipy.signal.convolve2d` ou **PyTorch/CuPy** (GPU) dominent généralement `np.roll`.

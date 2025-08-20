@@ -4,6 +4,7 @@
 
 import numpy as np
 from typing import Tuple, Iterable
+import re
 
 #      MODE CLASSIC (BINAIRE)     
 #---------------------------------
@@ -13,8 +14,6 @@ from typing import Tuple, Iterable
 # => naissance d'une cellule si et seulement si 3 cellules adjacentes sont vivantes (=1)
 # => survie d'une cellule vivnate si 2 ou 3 cellules adjacentes sont vivantes
 # => mort de la cellule dans tous les autres cas.
-
-
 
 
 # Bornes des valeurs autorisées 
@@ -28,7 +27,10 @@ def _normalize_counts(counts: Iterable[int]) -> tuple[int, ...]:
 
 # passage d'un format 'B3/S23' à (B = (3,), S = (2,3))
 def format_BS_rule_to_inter_list(BS_rule: str = 'B3/S23', ALLOWED_COUNTS=ALLOWED_COUNTS) -> Tuple[Tuple[int, ...], Tuple[int, ...]]:
-    #if BS_rule
+        # Vérification du format avec une expression régulière
+    if not re.match(r'^B[0-8]*\/S[0-8]*$', BS_rule):
+        raise ValueError("La règle doit être au format 'Bxxxx/Syyyy', où xxxx et yyyy sont des chiffres de 0 à 8")
+    
     B_rule, S_rule = BS_rule.split('/')
     B_unsorted = (n for n in B_rule[1:])
     S_unsorted = (n for n in S_rule[1:])
@@ -70,22 +72,30 @@ def evolution(grid: np.ndarray, rule: str = 'B3/S23') -> np.ndarray:
 
 
 
+#      TEST DES FONCTIONS     
+#-----------------------------
 if __name__ == "__main__":
     interline = "\n------------------------------------------------------------------------------------------------------------\n"
     print("Test de la fonction 'normalise' avec B = (1, 3, 2, 5, 5, 3) ==> resultat: ", _normalize_counts((1, 3, 2, 5, 5, 3)))
     print("Test de la fonction 'format_BS_rule_to_inter_list' avec B3/S23 ==> resultat: ", format_BS_rule_to_inter_list("B3/S23"))
     print("Test de la fonction 'format_BS_rule_to_inter_list' avec B3113/S423 ==> resultat: ", format_BS_rule_to_inter_list("B3113/S423"))
     print(interline)
+    
     A = np.array([[0,0,0,0,0], [0,1,0,1,0], [0,0,0,0,0], [0,0,1,0,0], [0,0,0,0,0]])
     print("Test de la fonction 'evolution' avec B3/S23 et la grille A:")
     print(A)
     print('Resultat:')
     print(evolution(A))
     print(interline)
+    
     B = np.array([[1,0,1], [0,0,0], [0,1,0]])
     print("Test de la fonction 'evolution' avec B3/S23 et la grille B [Verification de la périodicité des frontrières]:")
     print(B)
     print('Resultat:')
     print(evolution(B))
+    
+    print(interline)
+    print("Test erreur dans le format de la rule ex : E34B12")
+    format_BS_rule_to_inter_list('E34B12')
     
     

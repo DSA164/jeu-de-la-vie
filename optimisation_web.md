@@ -71,6 +71,7 @@ Objectif : **afficher l’évolution en temps réel** d’une grande grille, ave
 
 ## 4) Architecture logique (vue d’ensemble)
 
+```
 ┌──────────────────┐                           ┌─────────────────────────┐
 │ Navigateur       │      contrôle (UI)        │ Streamlit               │
 │ (Streamlit UI)   │◄──────────────────────────│ Widgets / Mise en page  │
@@ -82,7 +83,7 @@ Objectif : **afficher l’évolution en temps réel** d’une grande grille, ave
 │ WebRTC Player     │   calc étape (NumPy/Scipy)   │ Moteur de simulation     │
 │ (streamlit-webrtc)│◄─────────────────────────────│ (état A, step(), kernel) │
 └───────────────────┘                              └──────────────────────────┘
-
+```
 
  - Le **moteur** fait évoluer `A` (NumPy + convolution).  
  - Le **producteur de frames** convertit `A` en image (grayscale ou palette).  

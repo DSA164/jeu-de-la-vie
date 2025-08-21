@@ -1,4 +1,5 @@
 import streamlit as st 
+from streamlit import session_state as stss
 import time
 
 # Jey de la vie
@@ -15,6 +16,14 @@ st.set_page_config('Life', layout='wide', page_icon="🧬")
 st.title("🧬 Jeu de la vie")
 st.divider()
 
+# Inialisation des variables de session:
+for var in ['start', 'pause', 'reset']:
+    if var not in stss:
+        stss[var] = False
+for var in ['stop']:
+    if var not in stss:
+       stss[var] = True
+
 # paramètres dans la sidebar
 with st.sidebar:
     st.header("Paramètres")
@@ -28,13 +37,13 @@ with st.sidebar:
 
 
 # état partagé
-if "gol_engine" not in st.session_state:
-    st.session_state.gol_engine = GoLEngine(
+if "gol_engine" not in stss:
+    stss.gol_engine = GoLEngine(
         GoLParams(rows=rows, cols=cols, rule=rule, periodic=periodic,
                   life_density=life_density, fps=fps, cell_size=cell_size)
     )
 
-engine: GoLEngine = st.session_state.gol_engine
+engine: GoLEngine = stss.gol_engine
 # mettre à jour les params live (taille nécessite reset pour prendre effet)
 engine.update_params(rule=rule, periodic=periodic, fps=fps, cell_size=cell_size, life_density=life_density)
 
@@ -57,7 +66,8 @@ with col1:
                             """,
             unsafe_allow_html=True
         )
-            
+        
+       
         btn_start = st.button("Start", use_container_width=True)
         btn_stop = st.button("Stop", use_container_width=True)
         btn_reset = st.button("Reset", use_container_width=True)

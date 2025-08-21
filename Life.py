@@ -3,7 +3,7 @@ from streamlit import session_state as stss
 import time
 
 # Jey de la vie
-from utils_life_rules import evolution, format_BS_rule_to_inter_list
+from utils_life_rules import evolution, format_BS_rule_to_inter_list, format_BS_rule_match
 
 # web rendering
 from streamlit_webrtc import webrtc_streamer, WebRtcMode
@@ -32,8 +32,15 @@ with st.sidebar:
     cell_size = st.slider("Taille de cellule (px)", 2, 20, 8, step=1)
     fps = st.slider("SPS (Etats/sec)", 1, 60, 10, step=1)
     periodic = st.checkbox("Bords périodiques (torus)", True)
-    rule = st.text_input("Règle B/S", "B3/S23")
     life_density = st.slider("Densité initiale de vie", 0.0, 1.0, 0.2, step=0.05)
+    rule = st.text_input("Règle B/S", "B3/S23")
+    valid_format, msg_format = format_BS_rule_match(rule)
+    if not valid_format:
+        st.warning(msg_format)
+        rule = "B3/S23"
+    else:
+        st.empty()
+    
 
 
 # état partagé

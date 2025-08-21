@@ -24,12 +24,19 @@ def _normalize_counts(counts: Iterable[int]) -> tuple[int, ...]:
     """Tri + dédoublonnage + cast int."""
     return tuple(sorted({int(c) for c in counts}))
 
+# véfifie le format de la string BSrule ex: 'B3/S23' -> True, 'B3_S23' -> False,
+def format_BS_rule_match(BS_rule: str = 'B3/S23') -> Tuple[bool, str]:
+    if not re.match(r'^B[0-8]*\/S[0-8]*$', BS_rule):
+        return False, "La règle doit être au format 'Bxxxx/Syyyy', où xxxx et yyyy sont des chiffres de 0 à 8"
+    else:
+        return True, ""
 
 # passage d'un format 'B3/S23' à (B = (3,), S = (2,3))
 def format_BS_rule_to_inter_list(BS_rule: str = 'B3/S23', ALLOWED_COUNTS=ALLOWED_COUNTS) -> Tuple[Tuple[int, ...], Tuple[int, ...]]:
-        # Vérification du format avec une expression régulière
-    if not re.match(r'^B[0-8]*\/S[0-8]*$', BS_rule):
-        raise ValueError("La règle doit être au format 'Bxxxx/Syyyy', où xxxx et yyyy sont des chiffres de 0 à 8")
+    _format, msg = format_BS_rule_match(BS_rule)
+    if not _format:
+        print(msg)
+        return None, None
     
     B_rule, S_rule = BS_rule.split('/')
     B_unsorted = (n for n in B_rule[1:])

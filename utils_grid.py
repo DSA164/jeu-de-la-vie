@@ -25,7 +25,7 @@ PALETTES: tuple[ColorScale, ...] = tuple(ColorScale)
 
 #   Initilisation de la grille de jeu
 #---------------------------------------
-def init_grid(rows: int = 128, cols: int = 128, game_mode: GameModes = 'classic') -> np.ndarray:
+def create_grid(rows: int = 128, cols: int = 128, game_mode: GameModes = 'classic') -> np.ndarray:
     """
     Initialise une grille selon le mode de jeu.
 
@@ -273,17 +273,17 @@ if __name__ == "__main__":
     interline = "\n------------------------\n"
     
     # TEST DE L'INITIALISATION DES GRILLES
-    grid_classic = init_grid(4, 4, "classic")
+    grid_classic = create_grid(4, 4, "classic")
     print("Grille 'classic':\n", grid_classic)
     print(f"Detection du mode: {detect_game_mode(grid_classic)}")
     print(interline)
 
-    grid_rgb = init_grid(4, 4, "advanced_rgb")
+    grid_rgb = create_grid(4, 4, "advanced_rgb")
     print("Grille 'advanced_rgb':\n", grid_rgb)
     print(f"Detection du mode: {detect_game_mode(grid_rgb)}")
     print(interline)
 
-    grid_float = init_grid(4, 4, "advanced_float")
+    grid_float = create_grid(4, 4, "advanced_float")
     print("Grille 'advanced_float':\n", grid_float)
     print(f"Detection du mode: {detect_game_mode(grid_float)}")
     print(interline)

@@ -23,8 +23,8 @@ class ColorScale(StrEnum):
 PALETTES: tuple[ColorScale, ...] = tuple(ColorScale)
 
 
-#   Initilisation de la grille de jeu
-#---------------------------------------
+#   Fonction de création d'une grille de jeu
+#----------------------------------------------
 def create_grid(rows: int = 128, cols: int = 128, game_mode: GameModes = 'classic') -> np.ndarray:
     """
     Initialise une grille selon le mode de jeu.
@@ -146,7 +146,26 @@ def detect_game_mode(
         "Attendu: (H,W) ou (H,W,3)."
     )
     
-#   Fonction de'affichage de la grille (plotly)
+#   Fonction d'initialisation de la grille
+#---------------------------------------------      
+def init_grid(grid: np.ndarray, life_density: float = 0.2, pattern: bool = False):
+    mode = detect_game_mode(grid)
+    if not pattern:   
+        if mode == "classic":
+            # par défaut 80% de morts et 20% de vivants
+            grid[:] = np.random.choice([0,1], size=grid.shape, p=[1-life_density, life_density]).astype(np.uint8)
+            
+        elif mode == "advanced_float":
+            mask = np.random.random(size=grid.shape) < life_density
+            grid[mask] = np.random.random(mask.sum()).astype(np.float32)
+                
+        elif mode == "advanced_rgb":
+            print("Mode not used yet")
+ 
+    return grid
+    
+    
+#   Fonction d'affichage de la grille (plotly)
 #------------------------------------------------    
 def show_grid(
     grid: np.ndarray,
@@ -169,7 +188,7 @@ def show_grid(
     Retourne: plotly.graph_objects.Figure
     """
  
-    mode = detect_game_mode(grid)  # suppose la fonction fournie précédemment
+    mode = detect_game_mode(grid)
 
     # Dimensions / taille par défaut
     if grid.ndim == 2:
@@ -269,23 +288,28 @@ def add_palette_selector(
     return fig
 
 
+
+
+
 if __name__ == "__main__":
     interline = "\n------------------------\n"
     
-    # TEST DE L'INITIALISATION DES GRILLES
-    grid_classic = create_grid(4, 4, "classic")
+    # TEST DE CREATION ET INITIALISATION DES GRILLES
+    grid_classic = create_grid(5, 5, "classic")
     print("Grille 'classic':\n", grid_classic)
     print(f"Detection du mode: {detect_game_mode(grid_classic)}")
+    print(f"Initilialisation de la grille: {init_grid(grid_classic)}")
     print(interline)
 
-    grid_rgb = create_grid(4, 4, "advanced_rgb")
-    print("Grille 'advanced_rgb':\n", grid_rgb)
-    print(f"Detection du mode: {detect_game_mode(grid_rgb)}")
-    print(interline)
-
-    grid_float = create_grid(4, 4, "advanced_float")
+    grid_float = create_grid(5, 5, "advanced_float")
     print("Grille 'advanced_float':\n", grid_float)
     print(f"Detection du mode: {detect_game_mode(grid_float)}")
+    print(f"Initilialisation de la grille:\n{init_grid(grid_float)}")
+    print(interline)
+    
+    grid_rgb = create_grid(2, 2, "advanced_rgb")
+    print("Grille 'advanced_rgb':\n", grid_rgb)
+    print(f"Detection du mode:\n{detect_game_mode(grid_rgb)}")
     print(interline)
 
     

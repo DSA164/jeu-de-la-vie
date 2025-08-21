@@ -18,6 +18,8 @@ On représente la grille comme une **matrice binaire** `A` (numpy array, bool/in
 
 
 ## 2. ➕ Calcul vectorisé des voisins (`numpy.roll`)
+
+### 2.1. (`numpy.roll`)
 Au lieu de boucler cellule par cellule, on additionne les **versions décalées** de la matrice :
 
 ```python
@@ -40,6 +42,48 @@ def step(A: np.ndarray) -> np.ndarray:
     return ((N == 3) | ((A == 1) & (N == 2))).astype(np.uint8)
 ```
 
+
+### 2.2. (`numpy.pad`)
+Une alternative consiste à **ajouter un bord artificiel** autour de la grille avec `np.pad`, puis à sommer des tranches.  
+Deux modes utiles :  
+- `mode="constant", constant_values=0` → bords **non périodiques** (extérieur mort).  
+- `mode="wrap"` → bords **périodiques** (équivalent au `roll`).  
+
+```python
+import numpy as np
+
+def step_pad(A: np.ndarray, periodic: bool = True) -> np.ndarray:
+    mode = "wrap" if periodic else "constant"
+    gp = np.pad(A, ((1, 1), (1, 1)), mode=mode)
+
+    # Somme des 8 voisins par tranches (la zone centrale de gp correspond à A)
+    N = (
+        gp[:-2, :-2] + gp[:-2, 1:-1] + gp[:-2, 2:] +
+        gp[1:-1, :-2]                + gp[1:-1, 2:] +
+        gp[2:,   :-2] + gp[2:,   1:-1] + gp[2:,   2:]
+    )
+
+    # Règles de Conway (matriciel)
+    return ((N == 3) | ((A == 1) & (N == 2))).astype(np.uint8)
+```
+
+**📊 Comparaison `np.roll` vs `np.pad`**
+
+- **`np.roll`**  
+  - 8 décalages = **8 copies temporaires** de taille `n×m`.  
+  - Très efficace pour des grilles petites/moyennes (`~100×100` à `~500×500`).  
+  - Au-delà (`2000×2000` et +), la multiplication des copies augmente le coût mémoire et CPU.
+
+- **`np.pad` + slicing**  
+  - 1 seule copie temporaire de taille `(n+2)×(m+2)`.  
+  - Les 8 décalages sont remplacés par des **tranches (views)**, très peu coûteuses.  
+  - La surcharge de `np.pad` est faible (copie directe en mémoire).  
+  - Plus intéressant pour de **grandes grilles**.
+
+👉 En résumé :  
+- **Petites grilles** → `np.roll` (simplicité, rapidité).  
+- **Grandes grilles** → `np.pad` (économie mémoire, plus scalable).  
+  - permet aussi la simplification de l'écriture de la fonction `evolution()` pour considérent les 2 cas de figure: bords limitant et bords périodiques
 
 ---
 
